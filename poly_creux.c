@@ -148,29 +148,45 @@ int egalite_polynome (p_polyf_t p1, p_polyf_t p2)
   }
   return 1;
 }
-
-p_polyf_t addition_polynome (p_polyf_t p1, p_polyf_t p2)
+p_polyf_creux_t addition_polynome (p_polyf_creux_t p1, p_polyf_creux_t p2)
 {
-  p_polyf_t p3 ;
-  register unsigned int i ;
+  p_polyf_creux_t p3 ;
 
   p3 = creer_polynome (max (p1->degre, p2->degre));
+  int deg=0;
+  p_coeff_t mon_cur_p1=p1->head;
+  p_coeff_t mon_cur_p2=p2->head;
+  while(mon_cur_p1!=NULL && mon_cur_p2!=NULL){
+      if(mon_cur_p1->degre!=mon_cur_p2->degre){
+        if(mon_cur_p1->degre<mon_cur_p2->degre){
+          ajout_coef_trie(p3,mon_cur_p1->coeff, mon_cur_p1->degre);
+          mon_cur_p1=mon_cur_p1->suivant;
+        } else{
+          ajout_coef_trie(p3,mon_cur_p2->coeff, mon_cur_p2->degre);
+          mon_cur_p2=mon_cur_p2->suivant;
+        }
 
-  for (i = 0 ; i <= min (p1->degre, p2->degre); ++i)
-    {
-      p3->coeff [i] = p1->coeff [i] + p2->coeff [i] ;
+      }
+      float sum=mon_cur_p1->coeff+mon_cur_p2->coeff;
+      else if(!(mon_cur_p1->coeff+mon_cur_p2->coeff==0)){
+        ajout_coef_trie(p3,sum,deg);
+      }
+  }
+  while(mon_cur_p1!=NULL){
+    if(mon_cur_p1->coeff!=0){
+      ajout_coef_trie(p3,mon_cur_p1->coeff,mon_cur_p1->degre);
+      deg=mon_cur_p1->degre;
     }
-
-  if (p1->degre > p2->degre)
-    {
-      for (i = (p2->degre + 1) ; i <= p1->degre; ++i)
-	p3->coeff [i] = p1->coeff [i] ;
+    mon_cur_p1=mon_cur_p1->suivant;
+  }
+  while(mon_cur_p2!=NULL){
+    if(mon_cur_p2->coeff!=0){
+      ajout_coef_trie(p3,mon_cur_p2->coeff,mon_cur_p2->degre);
+      deg=mon_cur_p2->degre;
     }
-  else if (p2->degre > p1->degre)
-    {
-      for (i = (p1->degre + 1) ; i <= p2->degre; ++i)
-	p3->coeff [i] = p2->coeff [i] ;
-    }
+    mon_cur_p2=mon_cur_p2->suivant;
+  }
+  p3->degre=deg;
 
   return p3 ;
 }
